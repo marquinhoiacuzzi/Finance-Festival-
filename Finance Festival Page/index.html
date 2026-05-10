@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance Festival 2026</title>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+@font-face {
+  font-family: 'Phatt';
+  src: url('uploads/revive-80-phatt.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Breul Grotesk';
+  src: url('uploads/breul-grotesk-a-black.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Breul Grotesk';
+  src: url('uploads/breul-grotesk-a-light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#000000;
+  --cyan:#00E5FF;
+  --purple:#8B31E8;
+  --lilac:#C084FC;
+  --white:#EEEEF8;
+  --dim:#8890A8;
+  --navy:#0F1628;
+  --border:rgba(0,229,255,0.12);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Breul Grotesk',sans-serif;font-weight:300;overflow-x:hidden}
+::selection{background:var(--cyan);color:#000}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--purple)}
+
+#tweaks-panel{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  background:rgba(10,12,22,0.92);border:1px solid var(--border);
+  backdrop-filter:blur(20px);border-radius:16px;padding:20px;
+  width:260px;display:none;flex-direction:column;gap:14px;
+}
+#tweaks-panel.visible{display:flex}
+.tweak-title{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+.tweak-row{display:flex;flex-direction:column;gap:8px}
+.tweak-options{display:flex;gap:6px;flex-wrap:wrap}
+.tweak-btn{
+  font-family:'Breul Grotesk',sans-serif;font-size:11px;font-weight:500;
+  padding:5px 10px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--dim);cursor:pointer;transition:all 0.2s;
+}
+.tweak-btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,0.08)}
+.tweak-btn:hover:not(.active){border-color:rgba(0,229,255,0.3);color:var(--white)}
+
+/* ── CURSOR ── */
+*{cursor:url('uploads/arrow2699-xs.png'),default!important}
+@media(hover:none){*{cursor:auto!important}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .nav-links{display:flex!important;gap:16px!important}
+  .nav-brand-text{display:none!important}
+  .nav-cta{display:none!important}
+  .about-grid{grid-template-columns:1fr!important;gap:48px!important}
+  .cards-grid{grid-template-columns:1fr 1fr!important}
+  .section-pad{padding:80px 24px!important}
+  .contact-row{flex-direction:column!important;gap:32px!important}
+  .footer-row{flex-direction:column!important;gap:8px!important;text-align:center!important}
+  .split-grid{grid-template-columns:1fr!important}
+  .split-right{display:none!important}
+  .typo-bottom{gap:24px!important;flex-direction:column!important;align-items:flex-start!important}
+  #tweaks-panel{width:calc(100vw - 32px)!important;right:16px!important;bottom:16px!important}
+}
+@media(max-width:480px){
+  .cards-grid{grid-template-columns:1fr!important}
+  .section-pad{padding:64px 20px!important}
+  .nav-links a{font-size:11px!important}
+}
+
+@keyframes orbFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(3%,4%) scale(1.05)}}
+@keyframes ringPulseA{0%,100%{opacity:0.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.03)}}
+@keyframes ringPulseB{0%,100%{opacity:0.3;transform:translate(-50%,-50%) scale(1)}50%{opacity:0.65;transform:translate(-50%,-50%) scale(1.04)}}
+@keyframes ringPulseC{0%,100%{opacity:0.15;transform:translate(-50%,-50%) scale(1)}50%{opacity:0.4;transform:translate(-50%,-50%) scale(1.06)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+
+
+
+
+
+
+
+const { useState, useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "heroVariant": "centered",
+  "accentColor": "purple",
+  "showGrid": false,
+  "navBlur": true
+} /*EDITMODE-END*/;
+
+// ─── LOGO ────────────────────────────────────────────────────────
+function LogoIcon({ size = 150 }) {
+  return (
+    <img
+      src="uploads/Logo ok.png"
+      alt="Finance Festival"
+      style={{
+        width: size, height: size,
+        objectFit: 'contain',
+        flexShrink: 0
+      }} />);
+
+
+}
+
+// ─── NEON RINGS (fixed, página completa) ─────────────────────────
+function NeonRings({ cyan = true, purple = true, intensity = 1 }) {
+  const [scrollFade, setScrollFade] = useState(1);
+  useEffect(() => {
+    const fn = () => {
+      const ratio = Math.min(window.scrollY / (window.innerHeight * 0.8), 1);
+      setScrollFade(1 - ratio * 0.72);
+    };
+    window.addEventListener('scroll', fn, { passive: true });
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+  const op = intensity * scrollFade;
+  return (
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
+      {/* ── CYAN ring — top-left, mitad afuera ── */}
+      {cyan && <>
+        <div style={{
+          position: 'absolute', top: '-14vw', left: '-14vw',
+          width: '30vw', height: '30vw', borderRadius: '50%',
+          border: `40px solid rgba(0,229,255,${0.85 * op})`,
+          boxShadow: `0 0 60px 30px rgba(0,229,255,${0.55 * op}), 0 0 140px 70px rgba(0,229,255,${0.25 * op}), inset 0 0 50px rgba(0,229,255,${0.35 * op})`,
+          filter: `blur(22px)`
+        }} />
+        {/* Anillo interior blanco */}
+        <div style={{
+          position: 'absolute', top: '-10vw', left: '-10vw',
+          width: '22vw', height: '22vw', borderRadius: '50%',
+          border: `16px solid rgba(160,255,255,${1.0 * op})`,
+          boxShadow: `0 0 40px 20px rgba(100,255,255,${0.9 * op}), 0 0 80px 30px rgba(0,229,255,${0.5 * op}), inset 0 0 30px rgba(160,255,255,${0.7 * op})`,
+          filter: `blur(13px)`
+        }} />
+        {/* Glow blob suave detrás */}
+        <div style={{
+          position: 'absolute', top: '-16vw', left: '-16vw',
+          width: '36vw', height: '36vw', borderRadius: '50%',
+          background: `radial-gradient(circle, rgba(0,229,255,${0.08 * op}) 0%, transparent 65%)`,
+          filter: 'blur(70px)'
+        }} />
+      </>}
+
+      {/* ── PURPLE ring — bottom-right, mitad afuera ── */}
+      {purple && <>
+        <div style={{
+          position: 'absolute', bottom: '-14vw', right: '-14vw',
+          width: '30vw', height: '30vw', borderRadius: '50%',
+          border: `40px solid rgba(160,0,255,${0.85 * op})`,
+          boxShadow: `0 0 60px 30px rgba(160,0,255,${0.55 * op}), 0 0 140px 70px rgba(160,0,255,${0.25 * op}), inset 0 0 50px rgba(160,0,255,${0.35 * op})`,
+          filter: `blur(22px)`
+        }} />
+        {/* Anillo interior blanco */}
+        <div style={{
+          position: 'absolute', bottom: '-10vw', right: '-10vw',
+          width: '22vw', height: '22vw', borderRadius: '50%',
+          border: `16px solid rgba(220,150,255,${1.0 * op})`,
+          boxShadow: `0 0 40px 20px rgba(210,130,255,${0.9 * op}), 0 0 80px 30px rgba(160,0,255,${0.5 * op}), inset 0 0 30px rgba(220,150,255,${0.7 * op})`,
+          filter: `blur(13px)`
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '-16vw', right: '-16vw',
+          width: '36vw', height: '36vw', borderRadius: '50%',
+          background: `radial-gradient(circle, rgba(160,0,255,${0.08 * op}) 0%, transparent 65%)`,
+          filter: 'blur(70px)'
+        }} />
+      </>}
+    </div>);
+
+}
+
+// ─── GRID ────────────────────────────────────────────────────────
+function GridOverlay({ visible }) {
+  if (!visible) return null;
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+      backgroundImage: `linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px)`,
+      backgroundSize: '60px 60px'
+    }} />);
+
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────
+function Nav({ blur }) {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      padding: '0 24px', height: 64,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      background: scrolled ? blur ? 'rgba(6,7,13,0.85)' : 'rgba(6,7,13,0.98)' : 'transparent',
+      backdropFilter: scrolled && blur ? 'blur(20px)' : 'none',
+      borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+      transition: 'all 0.4s ease'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <LogoIcon size={28} glow={false} />
+        <span className="nav-brand-text" style={{ fontFamily: 'Phatt', fontSize: 18, letterSpacing: '0.08em' }}>FINANCE FESTIVAL</span>
+      </div>
+      <div className="nav-links" style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+        {[['¿Qué es?', 'about'], ['Agenda', 'agenda'], ['Contacto', 'contacto']].map(([l, id]) =>
+        <a key={l} href={`#${id}`} style={{ color: 'var(--dim)', fontSize: 13, fontWeight: 500, textDecoration: 'none', letterSpacing: '0.02em', transition: 'color 0.2s' }}
+        onMouseEnter={(e) => e.target.style.color = 'var(--cyan)'}
+        onMouseLeave={(e) => e.target.style.color = 'var(--dim)'}>{l}</a>
+        )}
+        <button style={{
+          fontFamily: 'Breul Grotesk', fontSize: 13, fontWeight: 600,
+          padding: '8px 20px', borderRadius: 8,
+          background: 'transparent', border: '1px solid var(--cyan)',
+          color: 'var(--cyan)', cursor: 'pointer', letterSpacing: '0.04em', transition: 'all 0.2s'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,229,255,0.1)'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+          INSCRIBIRME
+        </button>
+      </div>
+    </nav>);
+
+}
+
+// ─── COUNTDOWN ───────────────────────────────────────────────────
+function Countdown() {
+  const target = new Date('2026-08-08T09:00:00');
+  const calc = () => {
+    const diff = target - new Date();
+    if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
+    return {
+      d: Math.floor(diff / 86400000),
+      h: Math.floor(diff % 86400000 / 3600000),
+      m: Math.floor(diff % 3600000 / 60000),
+      s: Math.floor(diff % 60000 / 1000)
+    };
+  };
+  const [t, setT] = useState(calc);
+  useEffect(() => {const i = setInterval(() => setT(calc()), 1000);return () => clearInterval(i);}, []);
+  const pad = (n) => String(n).padStart(2, '0');
+  const units = [['días', t.d], ['hrs', t.h], ['min', t.m], ['seg', t.s]];
+  return (
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+      {units.map(([label, val], i) =>
+      <React.Fragment key={label}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontFamily: 'Breul Grotesk', fontWeight: 700, fontSize: 28, lineHeight: 1, color: 'var(--cyan)', letterSpacing: '0.06em' }}>{pad(val)}</div>
+            <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', color: 'var(--dim)', textTransform: 'uppercase', marginTop: 2 }}>{label}</div>
+          </div>
+          {i < 3 && <div style={{ color: 'var(--dim)', fontFamily: 'Breul Grotesk', fontSize: 24, paddingBottom: 12 }}>:</div>}
+        </React.Fragment>
+      )}
+    </div>);
+
+}
+
+// ─── HERO V1: CENTERED ───────────────────────────────────────────
+function HeroCentered() {
+  return (
+    <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '80px 24px 60px' }}>
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+        <LogoIcon size={96} />
+        <div style={{ fontFamily: 'Phatt', fontSize: 'clamp(32px, 10vw, 140px)',
+          lineHeight: 0.9, letterSpacing: '0.04em', color: 'var(--white)',
+          textShadow: '0 0 80px rgba(0,229,255,0.15)' }}>
+          FINANCE<br />FESTIVAL
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--dim)', fontSize: 14, fontWeight: 400, letterSpacing: '0.08em' }}>
+          <span>SAB 8 AGO 2026</span>
+          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--dim)', display: 'inline-block' }} />
+          <span>PARQUE DE LA INNOVACIÓN</span>
+        </div>
+        <div style={{ width: '100%', maxWidth: 320, padding: '16px 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ fontSize: 10, letterSpacing: '0.18em', color: 'var(--dim)', textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>Faltan</div>
+          <Countdown />
+        </div>
+        <button style={{
+          fontFamily: 'Breul Grotesk', fontSize: 14, fontWeight: 700,
+          padding: '14px 40px', borderRadius: 10,
+          backgroundColor: 'var(--purple)', color: '#fff', border: 'none',
+          cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase',
+          boxShadow: '0 0 40px rgba(139,49,232,0.4)', transition: 'background-color 0.25s, color 0.25s, box-shadow 0.25s, transform 0.25s'
+        }}
+        onMouseEnter={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.backgroundColor = '#00E5FF';e.currentTarget.style.color = '#000';e.currentTarget.style.boxShadow = '0 0 60px rgba(0,229,255,0.6)';}}
+        onMouseLeave={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.backgroundColor = '#8B31E8';e.currentTarget.style.color = '#fff';e.currentTarget.style.boxShadow = '0 0 40px rgba(139,49,232,0.4)';}}>
+          QUIERO INSCRIBIRME
+        </button>
+        <p style={{ fontSize: 12, color: 'var(--dim)', letterSpacing: '0.04em' }}>Las inscripciones abren pronto</p>
+      </div>
+    </section>);
+
+}
+
+// ─── HERO V2: SPLIT ──────────────────────────────────────────────
+function HeroSplit() {
+  return (
+    <section className="split-grid" style={{ position: 'relative', minHeight: '100vh', display: 'grid',
+      gridTemplateColumns: '1fr 1fr', overflow: 'hidden' }}>
+      <div style={{
+        position: 'absolute', top: 0, bottom: 0, left: '50%',
+        width: 2, background: 'linear-gradient(to bottom, transparent, var(--cyan), transparent)',
+        transform: 'skewX(-8deg)', zIndex: 2,
+        boxShadow: '0 0 20px rgba(0,229,255,0.4)'
+      }} />
+      <div style={{ position: 'relative', zIndex: 3, display: 'flex', flexDirection: 'column',
+        justifyContent: 'center', padding: '120px 60px 60px 60px' }}>
+        <div style={{ fontSize: 12, letterSpacing: '0.2em', color: 'var(--cyan)', fontWeight: 600, marginBottom: 16 }}>
+          SAB 8 AGO 2026 · PARQUE DE LA INNOVACIÓN
+        </div>
+        <div style={{ fontFamily: 'Phatt', fontSize: 'clamp(56px, 7vw, 108px)',
+          lineHeight: 0.88, letterSpacing: '0.03em', color: 'var(--white)', marginBottom: 32 }}>
+          FINANCE<br />FESTIVAL
+        </div>
+        <p style={{ fontSize: 16, color: 'var(--dim)', lineHeight: 1.6, maxWidth: 380, marginBottom: 40 }}>
+          Finanzas tradicionales y descentralizadas.<br />
+          Talleres, charlas, networking y mucho más.
+        </p>
+        <div style={{ marginBottom: 32, maxWidth: 300 }}><Countdown /></div>
+        <button style={{
+          fontFamily: 'Breul Grotesk', fontSize: 14, fontWeight: 700,
+          padding: '14px 40px', borderRadius: 10, width: 'fit-content',
+          background: 'var(--purple)', color: '#fff', border: 'none',
+          cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase',
+          boxShadow: '0 0 40px rgba(139,49,232,0.4)', transition: 'all 0.25s'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}>
+          QUIERO INSCRIBIRME
+        </button>
+      </div>
+      <div className="split-right" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoIcon size={200} glow={true} />
+      </div>
+    </section>);
+
+}
+
+// ─── HERO V3: TYPOGRAPHIC ────────────────────────────────────────
+function HeroTypo() {
+  return (
+    <section style={{ position: 'relative', minHeight: '100vh', display: 'flex',
+      flexDirection: 'column', justifyContent: 'flex-end', padding: '0 48px 80px', overflow: 'hidden' }}>
+      <div style={{
+        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+        fontFamily: 'Phatt', fontSize: 'clamp(100px, 18vw, 260px)',
+        lineHeight: 0.85, letterSpacing: '0.02em', whiteSpace: 'nowrap',
+        color: 'transparent', WebkitTextStroke: '1px rgba(0,229,255,0.07)',
+        userSelect: 'none', zIndex: 0
+      }}>
+        FINANCE<br />FESTIVAL
+      </div>
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', gap: 60, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <div>
+          <LogoIcon size={56} glow={true} />
+          <div style={{ fontFamily: 'Phatt', fontSize: 52, letterSpacing: '0.05em', lineHeight: 1, marginTop: 12, color: 'var(--white)' }}>
+            FINANCE FESTIVAL
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8, color: 'var(--dim)', fontSize: 13, letterSpacing: '0.1em' }}>
+            <span>SAB 8 AGO 2026</span>
+            <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--dim)', display: 'inline-block' }} />
+            <span>PARQUE DE LA INNOVACIÓN, BUENOS AIRES</span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingBottom: 4 }}>
+          <Countdown />
+          <button style={{
+            fontFamily: 'Breul Grotesk', fontSize: 13, fontWeight: 700,
+            padding: '12px 36px', borderRadius: 8, width: 'fit-content',
+            background: 'transparent', color: 'var(--cyan)',
+            border: '1px solid var(--cyan)', cursor: 'pointer', letterSpacing: '0.06em', transition: 'all 0.25s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,229,255,0.1)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+            INSCRIBIRME →
+          </button>
+        </div>
+      </div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1,
+        background: 'linear-gradient(90deg, transparent, var(--cyan), transparent)' }} />
+    </section>);
+
+}
+
+// ─── ABOUT ───────────────────────────────────────────────────────
+function About() {
+
+  return (
+    <section id="about" className="section-pad" style={{ position: 'relative', padding: '120px 60px', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: '30%', left: '-10%', width: '40vw', height: '40vw', borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(139,49,232,0.1) 0%, transparent 65%)', pointerEvents: 'none' }} />
+      <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <div style={{ fontSize: 11, letterSpacing: '0.2em', color: 'var(--cyan)', fontWeight: 600, marginBottom: 16, textTransform: 'uppercase' }}>Sobre el evento</div>
+        <h2 style={{ fontFamily: 'Breul Grotesk', fontWeight: 700, fontSize: 'clamp(40px, 5vw, 72px)', lineHeight: 0.9,
+          letterSpacing: '0.03em', marginBottom: 32, color: 'var(--white)' }}>
+          ¿QUÉ ES EL<br /><span style={{ fontFamily: 'Phatt' }}>FINANCE FESTIVAL</span>?
+        </h2>
+        <p style={{ fontSize: 18, color: 'var(--dim)', lineHeight: 1.75, marginBottom: 16 }}>
+          El Finance Festival es un <span style={{ color: 'var(--white)' }}>evento masivo</span> para descubrir el mundo de las finanzas tradicionales y las criptomonedas de forma práctica y entretenida.
+        </p>
+        <p style={{ fontSize: 18, color: 'var(--dim)', lineHeight: 1.75, marginBottom: 48 }}>
+          Los participantes podrán asistir a charlas, participar en talleres, explorar stands y hacer networking.
+        </p>
+
+        {/* Video — thumbnail clicable */}
+        <a
+          href="https://www.youtube.com/watch?v=q9UNZG_QMwU"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => {
+            // Forzar nueva pestaña incluso si estamos dentro de un iframe (preview)
+            e.preventDefault();
+            window.open('https://www.youtube.com/watch?v=q9UNZG_QMwU', '_blank', 'noopener,noreferrer');
+          }}
+          style={{ display: 'block', textDecoration: 'none' }}>
+          
+          <div style={{
+            position: 'relative', width: '100%', paddingBottom: '56.25%',
+            borderRadius: 16, overflow: 'hidden',
+            border: '1px solid var(--border)',
+            boxShadow: '0 0 60px rgba(0,229,255,0.08)',
+            cursor: 'pointer'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 0 80px rgba(0,229,255,0.22)';
+            e.currentTarget.style.borderColor = 'rgba(0,229,255,0.35)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 0 60px rgba(0,229,255,0.08)';
+            e.currentTarget.style.borderColor = 'var(--border)';
+          }}>
+            {/* Thumbnail de YouTube */}
+            <img
+              src="https://img.youtube.com/vi/q9UNZG_QMwU/maxresdefault.jpg"
+              alt="Ver video en YouTube"
+              style={{
+                position: 'absolute', top: 0, left: 0,
+                width: '100%', height: '100%',
+                objectFit: 'cover'
+              }} />
+            
+            {/* Overlay oscuro */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'rgba(0,0,0,0.35)'
+            }} />
+            {/* Botón play */}
+            <div style={{
+              position: 'absolute', top: '50%', left: '50%',
+              transform: 'translate(-50%,-50%)',
+              width: 72, height: 72, borderRadius: '50%',
+              background: 'rgba(0,229,255,0.15)',
+              border: '2px solid var(--cyan)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 0 40px rgba(0,229,255,0.4)'
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--cyan)">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+            {/* Label */}
+            <div style={{
+              position: 'absolute', bottom: 20, left: 24,
+              fontSize: 12, fontWeight: 600, letterSpacing: '0.08em',
+              color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase'
+            }}>VER EN YOUTUBE: AFTER MOVIE 2025 →</div>
+          </div>
+        </a>
+
+      </div>
+    </section>);
+
+}
+
+// ─── TRAMA ───────────────────────────────────────────────────────
+function Trama() {
+  const valores = [
+  { label: 'Intercambio orgánico', desc: 'Generamos un ambiente de encuentro genuino entre empresas y estudiantes.' },
+  { label: 'Acercar mundos', desc: 'Conectamos el mundo profesional con los jóvenes de toda la región.' },
+  { label: 'Impulso emprendedor', desc: 'Fomentamos el ecosistema tecnológico y emprendedor con temáticas de actualidad.' }];
+
+  return (
+    <section id="trama" className="section-pad" style={{
+      position: 'relative', padding: '120px 60px', overflow: 'hidden',
+      borderTop: '1px solid var(--border)',
+      background: 'rgba(8,10,20,0.5)'
+    }}>
+      <div style={{ position: 'absolute', top: '20%', right: '-8%', width: '35vw', height: '35vw', borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 65%)', pointerEvents: 'none' }} />
+      <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 48, maxWidth: 560 }}>
+          {/* Identity */}
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: '0.2em', color: 'var(--purple)', fontWeight: 600, marginBottom: 16, textTransform: 'uppercase' }}>Organiza</div>
+            <div style={{ marginBottom: 28 }}>
+              <img src="uploads/Logos (Logo).png" alt="Trama" style={{ display: 'block', height: '140px', width: 'auto', objectFit: 'contain' }} />
+            </div>
+            <p style={{ color: 'var(--dim)', lineHeight: 1.8, marginBottom: 12, fontSize: "17px" }}>
+              Trama es una <span style={{ color: 'var(--white)' }}>organización estudiantil sin fines de lucro</span> del Instituto Tecnológico de Buenos Aires, fundada en 2012.
+            </p>
+            <p style={{ color: 'var(--dim)', lineHeight: 1.8, fontSize: "17px" }}>
+              Nuestra misión es acercar el mundo profesional a los jóvenes y potenciar el ecosistema emprendedor y tecnológico.
+            </p>
+          </div>
+          {/* Valores */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, fontSize: "15px" }}>
+            {valores.map((v, i) =>
+            <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                <img src="uploads/Logos (Logo) (1).png" alt="★" style={{ flexShrink: 0, marginTop: 3, width: 22, height: 22, objectFit: 'contain' }} />
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--white)', marginBottom: 4, letterSpacing: '0.02em' }}>{v.label}</div>
+                  <div style={{ color: 'var(--dim)', lineHeight: 1.6, fontSize: "15px" }}>{v.desc}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>);
+
+}
+
+// ─── AGENDA ──────────────────────────────────────────────────────
+function Agenda() {
+  const [tab, setTab] = useState('auditorio');
+
+  const tracks = {
+    auditorio: {
+      label: 'Auditorio',
+      cap: '250 personas',
+      color: '#A8C4E0',
+      items: [
+      { time: '09:45', end: '10:00', title: 'Desayuno + Acreditaciones', type: 'break' },
+      { time: '11:05', end: '11:15', title: 'Info. General / Introducción', sub: 'Introductorio · Historia · Contexto Actual', type: 'charla' },
+      { time: '11:15', end: '11:25', title: 'El cambio estructural del sistema financiero', type: 'charla' },
+      { time: '11:30', end: '11:40', title: 'Pensar como Inversor: Riesgo, Valor y Decisión', type: 'charla' },
+      { time: '11:55', end: '12:10', title: 'Tokenización y Real World Assets', sub: 'Cómo se está redefiniendo el sistema financiero', type: 'charla' },
+      { time: '12:30', end: '12:45', title: 'Seguridad en cripto: riesgos, custodia y protección de activos', type: 'charla' },
+      { time: '13:00', end: '13:50', title: 'Almuerzo', type: 'break' },
+      { time: '13:50', end: '14:05', title: '¿Qué hacen los bancos con tu dinero?', sub: 'Emprendimientos · Diversificación de Inversiones', type: 'charla' },
+      { time: '14:10', end: '14:25', title: 'Bancos vs Fintechs: la disputa por el control del sistema financiero', type: 'charla' },
+      { time: '15:00', end: '15:35', title: 'Geopolítica y Mercados: Riesgo Global en Acción', sub: 'Panel', type: 'panel' },
+      { time: '15:35', end: '15:45', title: 'Cambio de tema (votación)', type: 'break' },
+      { time: '15:45', end: '16:20', title: 'Geopolítica y Mercados: Riesgo Global en Acción', sub: 'Panel — continuación', type: 'panel' },
+      { time: '16:20', end: '16:35', title: 'Crear en Web3: cómo se construye una startup crypto-native', type: 'charla' },
+      { time: '16:40', end: '17:00', title: 'El ecosistema cripto: qué está pasando hoy y dónde están las oportunidades', type: 'charla' },
+      { time: '17:10', end: '17:30', title: 'Merienda', type: 'break' },
+      { time: '17:40', end: '17:55', title: 'Charla de cierre — por confirmar', sub: 'Futuro · Cierre', type: 'charla' },
+      { time: '18:20', end: '18:40', title: 'Computación cuántica: la tecnología del futuro ya llegó', type: 'charla' },
+      { time: '18:45', end: '19:00', title: 'Cuántica vs Blockchain: el fin de la seguridad digital', type: 'charla' },
+      { time: '19:15', end: '19:20', title: 'Cierre + agradecimientos', type: 'break' },
+      { time: '19:20', end: null, title: 'After 🎉', type: 'break' }]
+
+    },
+    tradfi: {
+      label: 'WS TradFi',
+      cap: '30 personas',
+      color: 'var(--cyan)',
+      items: [
+      { time: '12:00', end: '12:30', title: 'Metodología Fuck Up Nights', sub: 'Aprendiendo TradFi y DeFi a través de 3 casos reales de fracaso', type: 'ws' },
+      { time: '14:00', end: '14:30', title: 'Cómo se financia una startup: capital, riesgo y crecimiento', type: 'ws' },
+      { time: '14:30', end: '14:35', title: 'Preguntas', type: 'qa' },
+      { time: '14:50', end: '15:20', title: 'Construí tu cartera de inversión: potenciada con IA', type: 'ws' },
+      { time: '15:30', end: '15:35', title: 'Preguntas', type: 'qa' },
+      { time: '15:45', end: '16:10', title: 'El ladrillo bajo la lupa: cómo analizar una inversión inmobiliaria', type: 'ws' },
+      { time: '16:15', end: '16:20', title: 'Preguntas', type: 'qa' },
+      { time: '16:30', end: '17:00', title: 'Comparando Activos: Decisión Basada en Métricas', type: 'ws' },
+      { time: '17:00', end: '17:05', title: 'Preguntas', type: 'qa' }]
+
+    },
+    defi: {
+      label: 'WS DeFi',
+      cap: '30 personas',
+      color: '#A855F7',
+      items: [
+      { time: '14:00', end: '14:30', title: 'Rendimiento en cripto: cómo distinguir una oportunidad real de una trampa', type: 'ws' },
+      { time: '14:30', end: '14:35', title: 'Preguntas', type: 'qa' },
+      { time: '14:50', end: '15:20', title: 'Cómo vibecodear un Smart Contract', type: 'ws' },
+      { time: '15:30', end: '15:35', title: 'Preguntas', type: 'qa' },
+      { time: '15:45', end: '16:10', title: 'Bitcoin como reserva estratégica: empresas y gobiernos', type: 'ws' },
+      { time: '16:15', end: '16:20', title: 'Preguntas', type: 'qa' },
+      { time: '16:30', end: '17:00', title: '¿Qué son las DAOs y cómo funcionan?', type: 'ws' },
+      { time: '17:00', end: '17:05', title: 'Preguntas', type: 'qa' },
+      { time: '17:45', end: '18:15', title: '¿Los agentes de IA van a manejar tu dinero?', sub: 'Lo que ya está pasando y cómo prepararte', type: 'ws' },
+      { time: '18:15', end: '18:20', title: 'Preguntas', type: 'qa' }]
+
+    }
+  };
+
+  const typeStyles = {
+    charla: { dot: 'var(--cyan)', label: 'Charla' },
+    panel: { dot: 'var(--lilac)', label: 'Panel' },
+    ws: { dot: tracks[tab]?.color || '#00E89A', label: 'Workshop' },
+    qa: { dot: '#8890A8', label: 'Q&A' },
+    break: { dot: '#333', label: null }
+  };
+
+  const active = tracks[tab];
+
+  return (
+    <section id="agenda" className="section-pad" style={{ padding: '120px 60px', background: 'rgba(8,10,18,0.6)' }}>
+      <div style={{ maxWidth: 860, margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ marginBottom: 48, textAlign: 'center' }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.2em', color: 'var(--cyan)', fontWeight: 600, marginBottom: 12, textTransform: 'uppercase' }}>Programa</div>
+          <h2 style={{ fontFamily: 'Breul Grotesk', fontWeight: 700, fontSize: 'clamp(40px, 5vw, 72px)', letterSpacing: '0.03em', color: 'var(--white)' }}>AGENDA DEL EVENTO</h2>
+          <p style={{ color: 'var(--dim)', marginTop: 12, fontSize: 14 }}>Sábado 8 de agosto de 2026 · Parque de la Innovación, Buenos Aires</p>
+        </div>
+
+        {/* Próximamente */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, textAlign: 'center' }}>
+          <div style={{ fontWeight: 700, letterSpacing: '0.18em', color: 'var(--cyan)', textTransform: 'uppercase', fontSize: '15px' }}>Próximamente</div>
+          <p style={{ color: 'var(--dim)', fontSize: 15, lineHeight: 1.7, maxWidth: 380 }}>
+            Estamos cerrando los últimos detalles.<br />
+            La agenda completa se publicará dentro de poco.
+          </p>
+        </div>
+      </div>
+    </section>);
+
+
+}
+
+// ─── SPONSORS ────────────────────────────────────────────────────
+function Sponsors() {
+  const logos = [
+  { file: '4.png', alt: 'Binance' },
+  { file: '5.png', alt: 'Bitget' },
+  { file: '19.png', alt: 'Uniswap' },
+  { file: '13.png', alt: 'Agrotoken' },
+  { file: '11.png', alt: 'IOI' },
+  { file: '15.png', alt: 'POAP' },
+  { file: '18.png', alt: 'DevConnect ARG' },
+  { file: '17.png', alt: 'Coderhouse' },
+  { file: '16.png', alt: 'GTF Capital' },
+  { file: '8.png', alt: 'PPI' },
+  { file: '9.png', alt: 'Z' },
+  { file: '12.png', alt: 'Smile' }];
+
+
+  return (
+    <section style={{ padding: '100px 60px', borderTop: '1px solid var(--border)' }}>
+      <div style={{ maxWidth: 960, margin: '0 auto', textAlign: 'center' }}>
+        <h2 style={{ fontFamily: 'Breul Grotesk', fontWeight: 700, fontSize: 48, letterSpacing: '0.05em', color: 'var(--white)', marginBottom: 56 }}>NUESTROS SPONSORS</h2>
+
+        {/* Logos ediciones anteriores */}
+        <div style={{ fontSize: 10, letterSpacing: '0.18em', color: 'var(--dim)', fontWeight: 600, textTransform: 'uppercase', marginBottom: 40 }}>
+          Nos acompañaron en ediciones anteriores
+        </div>
+        <img
+          src="uploads/Todos los logos juntos-d83fa7e4.png"
+          alt="Sponsors de ediciones anteriores"
+          style={{ width: '100%', maxWidth: 860, height: 'auto', opacity: 0.85 }} />
+        
+
+        <a href="#contacto" style={{ marginTop: 64, display: 'inline-block', padding: '12px 28px', borderRadius: 8,
+          border: '1px solid var(--border)', color: 'var(--dim)', fontSize: 13, transition: 'all 0.2s', textDecoration: 'none' }}
+        onMouseEnter={(e) => {e.currentTarget.style.borderColor = 'rgba(0,229,255,0.4)';e.currentTarget.style.color = 'var(--cyan)';}}
+        onMouseLeave={(e) => {e.currentTarget.style.borderColor = 'var(--border)';e.currentTarget.style.color = 'var(--dim)';}}>
+          ¿Querés ser sponsor? Contactanos →
+        </a>
+      </div>
+    </section>);
+
+}
+
+// ─── CONTACT ─────────────────────────────────────────────────────
+function Contact() {
+  return (
+    <section id="contacto" className="section-pad" style={{
+      padding: '80px 60px', borderTop: '1px solid var(--border)',
+      background: 'rgba(6,7,13,0.8)', position: 'relative', overflow: 'hidden'
+    }}>
+      <div style={{ position: 'absolute', bottom: '-30%', left: '50%', transform: 'translateX(-50%)',
+        width: '60vw', height: '60vw', borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(139,49,232,0.07) 0%, transparent 60%)', pointerEvents: 'none' }} />
+      <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <div className="contact-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 60, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <LogoIcon size={32} glow={false} />
+              <span style={{ fontFamily: 'Phatt', fontSize: 22, letterSpacing: '0.08em' }}>FINANCE FESTIVAL</span>
+            </div>
+            <p style={{ color: 'var(--dim)', fontSize: 13, lineHeight: 1.7, maxWidth: 300 }}>
+              Un evento de <span style={{ color: 'var(--white)' }}>Trama ITBA</span>.<br />
+              Sábado 8 de agosto de 2026.<br />
+              Parque de la Innovación, Buenos Aires.
+            </p>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: '0.15em', color: 'var(--dim)', fontWeight: 600, marginBottom: 16, textTransform: 'uppercase' }}>Seguinos</div>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+              {[
+              { label: 'Instagram', href: 'https://www.instagram.com/financefestival.trama/', icon: 'uploads/icon-instagram.png' },
+              { label: 'LinkedIn', href: 'https://www.linkedin.com/company/club-trama/posts/?feedView=all', icon: 'uploads/icon-linkedin.png' },
+              { label: 'Twitter / X', href: 'https://x.com/Cryptopall_', icon: 'uploads/icon-x.png' }].
+              map(({ label, href, icon }) =>
+              <a key={label} href={href} target="_blank" rel="noopener" aria-label={label} title={label} style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                width: 40, height: 40, transition: 'transform 0.2s, opacity 0.2s', opacity: 0.9
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.opacity = '1'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.opacity = '0.9'; }}>
+                <img src={icon} alt={label} style={{ width: 32, height: 32, objectFit: 'contain', display: 'block' }} />
+              </a>
+              )}
+            </div>
+            <div style={{ marginTop: 28, fontSize: 11, letterSpacing: '0.15em', color: 'var(--dim)', fontWeight: 600, marginBottom: 12, textTransform: 'uppercase' }}>Contacto</div>
+            <a href="mailto:finanzas.trama@itba.edu.ar" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              color: 'var(--dim)', fontSize: 14, textDecoration: 'none', transition: 'color 0.2s'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--cyan)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--dim)'; }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <polyline points="3 7 12 13 21 7" />
+              </svg>
+              finanzas.trama@itba.edu.ar
+            </a>
+          </div>
+        </div>
+        <div className="footer-row" style={{ marginTop: 60, paddingTop: 24, borderTop: '1px solid var(--border)',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          <span style={{ color: 'var(--dim)', fontSize: 12 }}>© 2026 Finance Festival · Trama ITBA</span>
+          <span style={{ color: 'var(--dim)', fontSize: 12 }}>Hecho con pasión en Buenos Aires</span>
+        </div>
+      </div>
+    </section>);
+
+}
+
+// ─── TWEAKS ──────────────────────────────────────────────────────
+function TweaksPanel({ tweaks, onChange }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === '__activate_edit_mode') setVisible(true);
+      if (e.data?.type === '__deactivate_edit_mode') setVisible(false);
+    };
+    window.addEventListener('message', handler);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', handler);
+  }, []);
+  const set = (key, val) => {
+    const next = { ...tweaks, [key]: val };
+    onChange(next);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: next }, '*');
+  };
+  return (
+    <div id="tweaks-panel" className={visible ? 'visible' : ''}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--white)', letterSpacing: '0.04em', borderBottom: '1px solid var(--border)', paddingBottom: 12 }}>Tweaks</div>
+      <div className="tweak-row">
+        <div className="tweak-title">Variante del Hero</div>
+        <div className="tweak-options">
+          {[['centered', 'Centrado'], ['split', 'Split'], ['typo', 'Tipográfico']].map(([v, l]) =>
+          <button key={v} className={`tweak-btn ${tweaks.heroVariant === v ? 'active' : ''}`} onClick={() => set('heroVariant', v)}>{l}</button>
+          )}
+        </div>
+      </div>
+      <div className="tweak-row">
+        <div className="tweak-title">Color de acento</div>
+        <div className="tweak-options">
+          {[['cyan', 'Cyan'], ['purple', 'Púrpura'], ['teal', 'Teal']].map(([v, l]) =>
+          <button key={v} className={`tweak-btn ${tweaks.accentColor === v ? 'active' : ''}`} onClick={() => set('accentColor', v)}>{l}</button>
+          )}
+        </div>
+      </div>
+      <div className="tweak-row">
+        <div className="tweak-title">Grilla de fondo</div>
+        <div className="tweak-options">
+          <button className={`tweak-btn ${tweaks.showGrid ? 'active' : ''}`} onClick={() => set('showGrid', !tweaks.showGrid)}>
+            {tweaks.showGrid ? 'Visible' : 'Oculta'}
+          </button>
+        </div>
+      </div>
+      <div className="tweak-row">
+        <div className="tweak-title">Nav blur</div>
+        <div className="tweak-options">
+          <button className={`tweak-btn ${tweaks.navBlur ? 'active' : ''}`} onClick={() => set('navBlur', !tweaks.navBlur)}>
+            {tweaks.navBlur ? 'Activado' : 'Desactivado'}
+          </button>
+        </div>
+      </div>
+    </div>);
+
+}
+
+// ─── APP ─────────────────────────────────────────────────────────
+function App() {
+  const [tweaks, setTweaks] = useState(() => {
+    try {return { ...TWEAK_DEFAULTS, ...JSON.parse(localStorage.getItem('ff-tweaks') || '{}') };}
+    catch {return TWEAK_DEFAULTS;}
+  });
+  useEffect(() => {
+    localStorage.setItem('ff-tweaks', JSON.stringify(tweaks));
+    const c = tweaks.accentColor === 'purple' ? '#8B31E8' : tweaks.accentColor === 'teal' ? '#0ACDCD' : '#00E5FF';
+    document.documentElement.style.setProperty('--cyan', c);
+  }, [tweaks]);
+  const Hero = tweaks.heroVariant === 'split' ? HeroSplit : tweaks.heroVariant === 'typo' ? HeroTypo : HeroCentered;
+  return (
+    <>
+      <GridOverlay visible={tweaks.showGrid} />
+      <NeonRings intensity={1} />
+      <Nav blur={tweaks.navBlur} />
+      <Hero />
+      <About />
+      <Trama />
+      <Agenda />
+      <Sponsors />
+      <Contact />
+      <TweaksPanel tweaks={tweaks} onChange={setTweaks} />
+    </>);
+
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<!-- CURSOR -->
+
+</body>
+</html>
